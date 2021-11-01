@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import firebase from '../utils/firebase';
+import { toast } from 'react-toastify';
 
 import 'firebase/firestore';
 firebase.firestore().settings({experimentalForceLongPolling: true});
@@ -22,10 +23,26 @@ function LinkForm(props) {
        setValues({...values, [name]:value})
     }
 
+    const validateURL = str => {
+        let res = str.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+        if(res == null)
+            return false;
+        else
+            return true;
+    }
+
     const handleSubmit = e => {
         e.preventDefault();
-        addOrEditLink(values);
-        setValues({...initialStateValue})
+
+        if (validateURL(values.url)) {
+            addOrEditLink(values);
+            setValues({...initialStateValue})
+            } else {
+                return toast("Invalid URL", {
+                    type: 'error',
+                    autoClose: 1000
+                });
+            }
     }
 
     const getLinkById = async (id) => {
